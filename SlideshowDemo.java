@@ -2,10 +2,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.*;
+
+/*Slideshow that cycles through images */
 
 public class KRP_SlideshowDemo extends JPanel 
 implements ActionListener{
