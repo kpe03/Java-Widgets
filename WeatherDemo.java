@@ -12,34 +12,36 @@ import com.google.gson.*;
 import com.google.gson.reflect.*;
 import com.google.gson.Gson;
 
+/* WeatherDemo widget that displays weather from selected city. Uses OpenWeatherMap API to retrieve current weather data 
+ Also uses GSON to convert JSON into a Map so that data can be easily read. */
+
 public class KRP_WeatherDemo extends JPanel
 implements ActionListener, PropertyChangeListener{
 	
 	//JPanel stuff!!
-	JFormattedTextField cityField, currentField, feelsLikeField, windSpeedField,
+	JFormattedTextField cityField, currentField, feelsLikeField, windSpeedField,	//text fields to show current weather data
 		tempMinField, tempMaxField;
-	JButton goButton;
+	JButton goButton;	//JButton for search button when selecting a city
+	JTextArea weatherTextArea;	
 	
-	JTextArea weatherTextArea;
-	
-	//implement a ComboBox with temperature units
+	//TODO implement a ComboBox with temperature units
 	
 	//--- API stuff!! ----
-	String API_key = "1d95441a66f6e0a30218727123fdb80a";
-	String cityName = "";
+	String API_key = "1d95441a66f6e0a30218727123fdb80a";	//API key to put in url
+	String cityName = "";	//hold city name
 	String temperature, feelsLike, tempMin, tempMax, windSpeed, weatherMain, 
-		weatherDescription;
-
-	//String API_string = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + API_key + "&units=" + units;
-	
+		weatherDescription;	//string variables to hold weather data
+	String API_string = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + API_key + "&units=" + units;
+	//
 	Date date;
 	
+	//main method
 	public static void main(String[] args) {
 		KRP_WeatherDemo krp_wd = new KRP_WeatherDemo();
 	}
-	
+	//constructor
 	public KRP_WeatherDemo () {
-	
+		//set layout
 		this.setLayout(new BorderLayout());
 		
 		//---- GUI setup! ----
@@ -62,7 +64,7 @@ implements ActionListener, PropertyChangeListener{
 		JLabel dateLabel = new JLabel(date.toString());
 		titleLabel.setFont(appFontMed);
 		dateLabel.setFont(appFontSmall);
-		//add
+		//add to title panel
 		titlePanel.add(titleLabel);
 		titlePanel.add(dateLabel);
 		
@@ -114,6 +116,7 @@ implements ActionListener, PropertyChangeListener{
 		weatherResultsPanel.add(feelsLikeField);
 		weatherResultsPanel.add(windSpeedLabel);
 		weatherResultsPanel.add(windSpeedField);
+		//TO DO implement Max temp, Min temp panels
 		/*
 		weatherResultsPanel.add(tempMaxLabel);
 		weatherResultsPanel.add(tempMaxField);
@@ -129,12 +132,14 @@ implements ActionListener, PropertyChangeListener{
 		weatherPanel.add(weatherLabel);
 		weatherPanel.add(weatherTextArea);
 		*/
+		//set main panel and add weather results
 		mainPanel.setLayout(new GridLayout(1,1));
 		mainPanel.add(weatherResultsPanel);
-		
+		//add everything to main panel
 		this.add(topPanel, BorderLayout.NORTH);
 		this.add(mainPanel, BorderLayout.CENTER);
 		
+		//action listeners and property change listeners
 		goButton.addActionListener(this);
 		cityField.addPropertyChangeListener("value", this);
 		currentField.addPropertyChangeListener("value", this);
@@ -144,7 +149,7 @@ implements ActionListener, PropertyChangeListener{
 	/*******************
 	 * actionPerformed *
 	 *******************/
-	//when the "search" button is clicked
+	//when the "search" button is clicked, get the city name and make API call
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == goButton) {
 			String city = (cityField.getText());
@@ -152,26 +157,26 @@ implements ActionListener, PropertyChangeListener{
 		
 			try {
 				StringBuilder result = new StringBuilder();
-				//url for the open weather map API
+				//create url for the open weather map API
 				URL url = new URL(API_call(city, API_key, "fahrenheit"));
+				//open connection
 				URLConnection connection = url.openConnection();
+				//create BufferedReader to read all of the JSON data
 				BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 				String line;
+				//Buffered reader reads each line until null, then puts data into a stringbuilder object
 				while((line = rd.readLine()) != null) {
 					result.append(line);
 				}
 				rd.close();
-				System.out.println(result);
+				//System.out.println(result); //show results
 				
+				//create map to that contains all JSON data
 				Map<String, Object> respMap = jsonToMap(result.toString());
-			
-				//Map<String, Object> weatherMap = jsonToMap(respMap.get("weather").toString());
-				
+				//Map that holds "Main" weather data
 				Map<String, Object> mainMap = jsonToMap(respMap.get("main").toString());
-				//this map holds data for wind speed
+				//Map that contains "Wind" weather data
 				Map<String, Object> windMap = jsonToMap(respMap.get("wind").toString());
-				
-				
 				
 				//get needed data from Main Map
 				temperature = (mainMap.get("temp")).toString();
@@ -182,9 +187,6 @@ implements ActionListener, PropertyChangeListener{
 				//data from wind speed map
 				windSpeed = (windMap.get("speed")).toString();
 				
-				//data from weather map
-				//weatherMain = (weatherMap.get("main")).toString();
-				//weatherDescription = (weatherMap.get("description")).toString();
 				
 			}
 			catch(IOException ioe) {
@@ -230,11 +232,5 @@ implements ActionListener, PropertyChangeListener{
 		String API_string = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + API_key + "&units=imperial";
 		return API_string;
 	}
-	
-	/**********************
-	 * kelvinToFahrenheit *
-	 **********************/
-
-
 	 
 }
